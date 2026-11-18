@@ -1,0 +1,8 @@
+{
+  "method": "moead",
+  "evaluations": 240,
+  "runtime": 0.8493747020002047,
+  "archive_size": 11,
+  "hypervolume": 1.0144075001289368,
+  "minimum_violation": 0
+}

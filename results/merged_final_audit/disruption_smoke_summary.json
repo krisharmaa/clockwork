@@ -1,0 +1,143 @@
+{
+  "teacher_absent": {
+    "runs": 1,
+    "mean_sessions": 150,
+    "mean_broken": 4,
+    "repair_mean_changes": 4,
+    "repair_proven_minimal": 1,
+    "repair_mean_hv": 0.9690776630872588,
+    "epsilon_levels": {
+      "0": {
+        "runs": 1,
+        "mean_hv": 0.9840361445783137,
+        "mean_hv_vs_scratch": 0.927125098105394
+      },
+      "2": {
+        "runs": 1,
+        "mean_hv": 0.998611694954547,
+        "mean_hv_vs_scratch": 0.9408576816562719
+      },
+      "5": {
+        "runs": 1,
+        "mean_hv": 1.0110533539677091,
+        "mean_hv_vs_scratch": 0.9525797859679126
+      },
+      "10": {
+        "runs": 1,
+        "mean_hv": 1.0302595681366626,
+        "mean_hv_vs_scratch": 0.9706752220895755
+      },
+      "20": {
+        "runs": 1,
+        "mean_hv": 1.042456370511245,
+        "mean_hv_vs_scratch": 0.9821666308761425
+      },
+      "40": {
+        "runs": 1,
+        "mean_hv": 1.0508552246747849,
+        "mean_hv_vs_scratch": 0.9900797431467102
+      }
+    },
+    "scratch_mean_hv": 1.0613844308488887,
+    "scratch_mean_min_changes": 147,
+    "scratch_mean_compromise_changes": 149,
+    "epsilon_final_beats_scratch_hv": 0,
+    "mean_evaluations": 527,
+    "epsilon_mean_runtime": 20.95903027600002,
+    "scratch_mean_runtime": 5.58160073199997
+  },
+  "teacher_leaves": {
+    "runs": 1,
+    "mean_sessions": 150,
+    "mean_broken": 10,
+    "repair_mean_changes": 10,
+    "repair_proven_minimal": 1,
+    "repair_mean_hv": 0.9315367793678746,
+    "epsilon_levels": {
+      "0": {
+        "runs": 1,
+        "mean_hv": 0.9357598399467997,
+        "mean_hv_vs_scratch": 0.8888694115790304
+      },
+      "2": {
+        "runs": 1,
+        "mean_hv": 0.9550996797200657,
+        "mean_hv_vs_scratch": 0.9072401422573988
+      },
+      "5": {
+        "runs": 1,
+        "mean_hv": 0.9731507103454486,
+        "mean_hv_vs_scratch": 0.9243866453294812
+      },
+      "10": {
+        "runs": 1,
+        "mean_hv": 0.9763201242083495,
+        "mean_hv_vs_scratch": 0.9273972415477665
+      },
+      "20": {
+        "runs": 1,
+        "mean_hv": 1.0196760284805877,
+        "mean_hv_vs_scratch": 0.968580604493896
+      },
+      "40": {
+        "runs": 1,
+        "mean_hv": 1.0430368227939129,
+        "mean_hv_vs_scratch": 0.9907708018168381
+      }
+    },
+    "scratch_mean_hv": 1.0527528878336254,
+    "scratch_mean_min_changes": 148,
+    "scratch_mean_compromise_changes": 148,
+    "epsilon_final_beats_scratch_hv": 0,
+    "mean_evaluations": 720,
+    "epsilon_mean_runtime": 11.939692350999849,
+    "scratch_mean_runtime": 6.46454413399988
+  },
+  "room_closed": {
+    "runs": 1,
+    "mean_sessions": 150,
+    "mean_broken": 32,
+    "repair_mean_changes": 32,
+    "repair_proven_minimal": 1,
+    "repair_mean_hv": 0.9291748239507749,
+    "epsilon_levels": {
+      "0": {
+        "runs": 1,
+        "mean_hv": 0.9322495780240277,
+        "mean_hv_vs_scratch": 0.9212069338221297
+      },
+      "2": {
+        "runs": 1,
+        "mean_hv": 0.9540155181693774,
+        "mean_hv_vs_scratch": 0.9427150529521516
+      },
+      "5": {
+        "runs": 1,
+        "mean_hv": 0.9640426109106016,
+        "mean_hv_vs_scratch": 0.9526233731885329
+      },
+      "10": {
+        "runs": 1,
+        "mean_hv": 0.9709581886458473,
+        "mean_hv_vs_scratch": 0.959457034807986
+      },
+      "20": {
+        "runs": 1,
+        "mean_hv": 0.990424325181186,
+        "mean_hv_vs_scratch": 0.978692591866742
+      },
+      "40": {
+        "runs": 1,
+        "mean_hv": 0.9911533462372137,
+        "mean_hv_vs_scratch": 0.9794129775526638
+      }
+    },
+    "scratch_mean_hv": 1.0119871483772724,
+    "scratch_mean_min_changes": 147,
+    "scratch_mean_compromise_changes": 150,
+    "epsilon_final_beats_scratch_hv": 0,
+    "mean_evaluations": 617,
+    "epsilon_mean_runtime": 10.40572215799989,
+    "scratch_mean_runtime": 3.764720822999834
+  }
+}

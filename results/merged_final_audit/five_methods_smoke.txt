@@ -1,0 +1,20 @@
+Running benchmark on instance (40 events, 2 groups, 6 faculty)...
+Protocol: Budget = 48 full evaluations, Seed = 0, Pop = 12
+
+--> 1/5: Running Greedy (DSatur baseline)... Done (0.57s)
+--> 2/5: Running Standard NSGA-II... Done (0.01s)
+--> 3/5: Running Memetic NSGA-II... Done (0.22s)
+--> 4/5: Running MOEA/D (Tchebycheff)... Done (0.27s)
+--> 5/5: Running AMOSA (Simulated Annealing)... Done (0.27s)
+
+================================================================================
+MULTI-OBJECTIVE OPTIMIZATION ALGORITHMIC BENCHMARK
+================================================================================
+Method                    | Feasible | Archive | Hypervolume  | Runtime (s) | Compromise (Gaps, Room, SD)
+---------------------------------------------------------------------------------------------------------
+Greedy                    | True     | 1       | 0.935319     | 0.57        | [0.0, 0.2545, 0.0471]
+Standard NSGA-II          | False    | 0       | 0.0          | 0.01        | -
+Memetic NSGA-II           | True     | 3       | 0.935317     | 0.22        | [0.0, 0.2682, 0.0471]
+MOEA/D (Tchebycheff)      | True     | 3       | 0.935072     | 0.27        | [0.0, 0.2682, 0.0471]
+AMOSA                     | True     | 1       | 0.935319     | 0.27        | [0.0, 0.2545, 0.0471]
+================================================================================

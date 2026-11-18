@@ -1,0 +1,17 @@
+merged_audit_comparison: small_9010 evaluations greedy seed=0
+  HV=0.93491312 feasible=True evals=24 elapsed=0.444s overshoot=0.000s
+merged_audit_comparison: small_9010 evaluations original_enhanced seed=0
+  HV=0.86472878 feasible=True evals=24 elapsed=0.184s overshoot=0.000s
+merged_audit_comparison: small_9010 evaluations memetic seed=0
+  HV=0.93527776 feasible=True evals=24 elapsed=0.200s overshoot=0.000s
+merged_audit_comparison: small_9010 evaluations ablation_local seed=0
+  HV=0.93521100 feasible=True evals=24 elapsed=0.256s overshoot=0.000s
+merged_audit_comparison: small_9010 wall_time greedy seed=0
+  HV=0.93482042 feasible=True evals=11 elapsed=0.414s overshoot=0.014s
+merged_audit_comparison: small_9010 wall_time original_enhanced seed=0
+  HV=0.86472878 feasible=True evals=29 elapsed=0.401s overshoot=0.001s
+merged_audit_comparison: small_9010 wall_time memetic seed=0
+  HV=0.93527776 feasible=True evals=23 elapsed=0.468s overshoot=0.068s
+merged_audit_comparison: small_9010 wall_time ablation_local seed=0
+  HV=0.89518373 feasible=True evals=4 elapsed=0.407s overshoot=0.007s
+results/merged_audit_comparison

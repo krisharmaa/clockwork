@@ -1,0 +1,63 @@
+[PASS] servers: backend health  ({'ok': True, 'optimizer': 'Feasible memetic NSGA-II (final method)'})
+[PASS] servers: frontend serves the app
+[PASS] servers: frontend proxies /api to the backend
+[PASS] accounts: wrong password refused
+[PASS] accounts: no token refused
+[PASS] accounts: admin login
+[PASS] teacher constraints: saved availability reported as applied  (f2: blocked 7 periods it used, max 2/day)
+[PASS] teacher constraints: blocked periods are in the optimised instance
+[PASS] teacher constraints: no Pareto timetable uses a blocked period  (4 timetables checked)
+[PASS] teacher constraints: saved daily maximum respected
+[PASS] teacher constraints: same seed gives a different result once constraints change  (compromise objectives {'f1': 0.0, 'f2': 0.1171474358974359, 'f3': 0.09020039418489872} -> {'f1': 0.0, 'f2': 0.1171474358974359, 'f3': 0.09020039418489872})
+[PASS] optimizer run: final method used  (Feasible memetic NSGA-II (final method))
+[PASS] optimizer run: result checked by the independent evaluator
+[PASS] optimizer run: Pareto front returned  (16 timetables, HV 1.0437)
+[PASS] optimizer run: baseline ran with equal evaluations  (greedy HV 1.0115 vs memetic 1.0437 at 360 evaluations)
+[PASS] optimizer run: convergence history for the chart
+[PASS] optimizer run: run kept server-side (/runs/latest)
+[PASS] collisions: every returned timetable passes an independent re-check  (30 timetables: no teacher/student/room clash, lunch, capacity, kind, availability, limits)
+[PASS] publish: clashing timetable refused  ({'detail': 'Not published: the timetable breaks hard constraints (daily_overload x46, faculty_clash x131, faculty_unavai)
+[PASS] publish: best-compromise timetable published
+[PASS] accounts: one account per teacher and per class  (28 created)
+[PASS] accounts: student login sees own class
+[PASS] accounts: student cannot run the optimiser / cancel / manage users
+[PASS] accounts: teacher cannot run the optimiser or manage users
+[PASS] accounts: students and teachers see the published timetable
+[PASS] leave and cover: teacher applies for leave  (F16 on 2026-11-23: 3 lectures)
+[PASS] leave and cover: their lectures become 'needs cover'
+[PASS] leave and cover: other teachers are notified
+[PASS] leave and cover: free teacher requests the lecture  (F01 asks for G06-T3)
+[PASS] leave and cover: lecture owner is notified of the request
+[PASS] leave and cover: requester cannot approve own request
+[PASS] leave and cover: accepted request -> covered by the substitute
+[PASS] leave and cover: substitute is notified of the acceptance
+[PASS] leave and cover: admin assigns a substitute directly  (F02)
+[PASS] leave and cover: a teacher who is busy then cannot be assigned  ({'detail': 'Faculty F13 already teaches G01-L2 (P1) then.'})
+[PASS] requests and notifications: request listed for the owner (incoming) and sender (outgoing)
+[PASS] requests and notifications: declined request leaves the lecture unchanged
+[PASS] requests and notifications: requester is notified of the decline
+[PASS] requests and notifications: teacher cannot request a lecture while teaching another  ({'detail': 'Faculty F01 already teaches G02-L1 (P1) then.'})
+[PASS] requests and notifications: notifications can be marked read
+[PASS] quiz and extra classes: refused when the students already have a class  ({'detail': 'The students already have G01-L2 (P1) then.'})
+[PASS] quiz and extra classes: refused when the teacher is teaching elsewhere  ({'detail': 'Faculty F06 already teaches G05-T3 (P8) then.'})
+[PASS] quiz and extra classes: refused when the room is taken  ({'detail': 'Room R02 is taken by G02-T3 (P6).'})
+[PASS] quiz and extra classes: accepted in a free period / free room  (G01-T1 P6 in R04)
+[PASS] quiz and extra classes: quiz appears in the calendar
+[PASS] quiz and extra classes: class is notified
+[PASS] quiz and extra classes: teacher cannot add a quiz for a course they do not teach
+[PASS] quiz and extra classes: second class refused in the room the quiz now uses  ({'detail': 'Room R04 is taken by G01-T1 (P6).'})
+[PASS] online assessment: lectures inside the assessment window are cancelled  (4 cancelled)
+[PASS] online assessment: lectures outside the window are untouched  (1 kept)
+[PASS] online assessment: other classes are untouched
+[PASS] online assessment: class is notified
+[PASS] online assessment: no quiz can be put inside the assessment  ({'detail': 'The students have an online assessment then.'})
+[PASS] holidays: every lecture that day is cancelled  (32 lectures)
+[PASS] holidays: everyone is notified
+[PASS] holidays: no quiz on a holiday
+[PASS] holidays: teachers cannot declare holidays
+[PASS] syllabus completion: only the course's teacher (or admin) can mark it
+[PASS] syllabus completion: no lectures after the completion date  (13 before, 0 after)
+[PASS] syllabus completion: no extra class after completion
+[PASS] collisions: no teacher/student/room double booking anywhere in the semester calendar  (1925 dated classes incl. covers and quizzes)
+
+61 passed, 0 failed, 0 skipped in 45s

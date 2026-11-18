@@ -1,0 +1,18 @@
+{
+  "passed": [
+    "administrator signs in and runs the optimiser with measured baseline",
+    "Pareto comparison marks omitted algorithms Not run; TOPSIS and AHP render",
+    "advanced run displays all five measured algorithm rows",
+    "designer edits content, switches entities, drags a decoration and annotates a class",
+    "custom non-clock period labels render and export CSV/PNG without phantom lunch",
+    "poster renders every configured lunch period",
+    "administrator publishes and creates linked teacher/student accounts through forms",
+    "switching calendar lectures resets drawer form state",
+    "reported room closure produces measured repair options and before/after preview",
+    "responsive icon navigation retains accessible link names",
+    "student sees linked timetable and read-only calendar with role navigation",
+    "teacher saves availability, adds/removes leave and opens requests",
+    "all browser flows complete without uncaught JavaScript errors"
+  ],
+  "pageErrors": []
+}

@@ -1,0 +1,14 @@
+[PASS] administrator signs in and runs the optimiser with measured baseline
+[PASS] Pareto comparison marks omitted algorithms Not run; TOPSIS and AHP render
+[PASS] advanced run displays all five measured algorithm rows
+[PASS] designer edits content, switches entities, drags a decoration and annotates a class
+[PASS] custom non-clock period labels render and export CSV/PNG without phantom lunch
+[PASS] poster renders every configured lunch period
+[PASS] administrator publishes and creates linked teacher/student accounts through forms
+[PASS] switching calendar lectures resets drawer form state
+[PASS] reported room closure produces measured repair options and before/after preview
+[PASS] responsive icon navigation retains accessible link names
+[PASS] student sees linked timetable and read-only calendar with role navigation
+[PASS] teacher saves availability, adds/removes leave and opens requests
+[PASS] all browser flows complete without uncaught JavaScript errors
+13 browser checks passed; artifacts: work/merged-audit/browser_acceptance

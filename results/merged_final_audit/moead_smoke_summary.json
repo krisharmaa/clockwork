@@ -1,0 +1,155 @@
+{
+  "protocol": {
+    "population": 12,
+    "scenarios": [
+      {
+        "size": "small",
+        "instance_seeds": [
+          3010
+        ],
+        "solver_seeds": [
+          0,
+          1
+        ],
+        "budget": 60
+      }
+    ]
+  },
+  "methods": {
+    "greedy": "Repeated greedy",
+    "memetic": "Memetic NSGA-II (final method)",
+    "moead_tchebycheff": "MOEA/D, Tchebycheff",
+    "moead_weighted_sum": "MOEA/D, weighted sum"
+  },
+  "sizes": {
+    "small": {
+      "budget": 60,
+      "note": null,
+      "methods": {
+        "greedy": {
+          "runs": 2,
+          "feasible_runs": 2,
+          "mean_hypervolume": 0.9352108692577955,
+          "median_hypervolume": 0.9352108692577955,
+          "min_hypervolume": 0.9351029793827229,
+          "max_hypervolume": 0.9353187591328681,
+          "mean_front_size": 1.5,
+          "mean_runtime_seconds": 2.3188131040000144
+        },
+        "memetic": {
+          "runs": 2,
+          "feasible_runs": 2,
+          "mean_hypervolume": 0.9353167937585309,
+          "median_hypervolume": 0.9353167937585309,
+          "min_hypervolume": 0.9353148283841938,
+          "max_hypervolume": 0.9353187591328681,
+          "mean_front_size": 3,
+          "mean_runtime_seconds": 0.8899920144999669
+        },
+        "moead_tchebycheff": {
+          "runs": 2,
+          "feasible_runs": 2,
+          "mean_hypervolume": 0.935312751282555,
+          "median_hypervolume": 0.935312751282555,
+          "min_hypervolume": 0.935306743432242,
+          "max_hypervolume": 0.9353187591328681,
+          "mean_front_size": 3,
+          "mean_runtime_seconds": 1.3644746625000153
+        },
+        "moead_weighted_sum": {
+          "runs": 2,
+          "feasible_runs": 2,
+          "mean_hypervolume": 0.9351432081679518,
+          "median_hypervolume": 0.9351432081679518,
+          "min_hypervolume": 0.9349676572030355,
+          "max_hypervolume": 0.9353187591328681,
+          "mean_front_size": 3,
+          "mean_runtime_seconds": 1.2286233734999996
+        }
+      },
+      "paired": {
+        "moead_tchebycheff_vs_memetic": {
+          "pairs": 2,
+          "wins": 0,
+          "losses": 1,
+          "ties": 1,
+          "median_difference": -4.042475975907234e-06,
+          "mean_difference": -4.042475975907234e-06,
+          "paired_superiority": 0.25,
+          "sign_test_p_two_sided": 1.0
+        },
+        "moead_tchebycheff_vs_greedy": {
+          "pairs": 2,
+          "wins": 1,
+          "losses": 0,
+          "ties": 1,
+          "median_difference": 0.00010188202475952535,
+          "mean_difference": 0.00010188202475952535,
+          "paired_superiority": 0.75,
+          "sign_test_p_two_sided": 1.0
+        },
+        "memetic_vs_greedy": {
+          "pairs": 2,
+          "wins": 1,
+          "losses": 0,
+          "ties": 1,
+          "median_difference": 0.00010592450073543258,
+          "mean_difference": 0.00010592450073543258,
+          "paired_superiority": 0.75,
+          "sign_test_p_two_sided": 1.0
+        },
+        "moead_tchebycheff_vs_moead_weighted_sum": {
+          "pairs": 2,
+          "wins": 1,
+          "losses": 0,
+          "ties": 1,
+          "median_difference": 0.00016954311460321003,
+          "mean_difference": 0.00016954311460321003,
+          "paired_superiority": 0.75,
+          "sign_test_p_two_sided": 1.0
+        },
+        "moead_weighted_sum_vs_memetic": {
+          "pairs": 2,
+          "wins": 0,
+          "losses": 1,
+          "ties": 1,
+          "median_difference": -0.00017358559057911727,
+          "mean_difference": -0.00017358559057911727,
+          "paired_superiority": 0.25,
+          "sign_test_p_two_sided": 1.0
+        }
+      }
+    }
+  },
+  "support": {
+    "small-3010": {
+      "reference_front_size": 1,
+      "supported": 1,
+      "unsupported": 0,
+      "weight_grid_divisions": 80,
+      "by_method": {
+        "greedy": {
+          "reference_points": 1,
+          "unsupported_reference_points": 0
+        },
+        "memetic": {
+          "reference_points": 1,
+          "unsupported_reference_points": 0
+        },
+        "moead_tchebycheff": {
+          "reference_points": 1,
+          "unsupported_reference_points": 0
+        },
+        "moead_weighted_sum": {
+          "reference_points": 1,
+          "unsupported_reference_points": 0
+        }
+      }
+    }
+  },
+  "total_runtime_seconds": 11.625502280000092,
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  }
+}

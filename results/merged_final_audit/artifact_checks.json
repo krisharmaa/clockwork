@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "relative_markdown_links": "PASS",
+  "unwanted_tracked_files": [],
+  "private_key_or_token_patterns": [],
+  "artifacts": {
+    "report/final_report.pdf": {
+      "pages": 23,
+      "text_within_page_bounds": true,
+      "sha256": "afe67d122ea0beee04605783f69c20c4efe7cf7ba738faca42482fc1b6e8a5bb"
+    },
+    "presentation/college_timetable_optimization.pdf": {
+      "pages": 22,
+      "text_within_page_bounds": true,
+      "sha256": "96723c3cbf5d09958a2500c0529b53d3f29c08e5588bb78741a2b8029d1d12b4"
+    },
+    "presentation/college_timetable_optimization.pptx": {
+      "slides": 22,
+      "speaker_notes": 22
+    }
+  },
+  "evidence_hashes_verified": 11,
+  "report_required_sections": 19,
+  "checked_source_hashes_verified": 124,
+  "historical_measurements_unchanged": true
+}

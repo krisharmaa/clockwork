@@ -1,0 +1,9 @@
+{
+  "runs": 168,
+  "raw_archived_schedules": 3295,
+  "exact_front_survivors": 3242,
+  "exact_dominated_points": 53,
+  "exact_duplicate_points": 0,
+  "affected_runs": 36,
+  "max_absolute_hypervolume_change": 3.3306690738754696e-16
+}

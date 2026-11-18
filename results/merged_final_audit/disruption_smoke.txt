@@ -1,0 +1,5 @@
+medium_1010 teacher_absent  F10  seed 0: broken   4 repair   4 | eps HV 0.9840 -> 1.0509 | scratch HV 1.0614, min changes 147
+medium_1010 teacher_leaves  F10  seed 0: broken  10 repair  10 | eps HV 0.9358 -> 1.0430 | scratch HV 1.0528, min changes 148
+medium_1010 room_closed     R07  seed 0: broken  32 repair  32 | eps HV 0.9322 -> 0.9912 | scratch HV 1.0120, min changes 147
+
+3 runs in 67s -> /workspace/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/work/merged-audit/disruption_smoke

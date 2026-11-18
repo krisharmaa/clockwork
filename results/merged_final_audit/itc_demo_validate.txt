@@ -1,0 +1,48 @@
+{
+  "objectives": [
+    0.0,
+    0.1721655328798186,
+    0.10520317644127165
+  ],
+  "violation": 0,
+  "violations": {},
+  "metrics": {
+    "student_gaps": 0,
+    "faculty_gaps": 0,
+    "average_student_gap_per_day": 0.0,
+    "longest_idle_stretch": 0,
+    "room_utilization": 0.8278344671201814,
+    "faculty_loads": {
+      "Prof_01": 4,
+      "Prof_02": 6,
+      "Prof_03": 8,
+      "Prof_04": 5,
+      "Prof_05": 9,
+      "Prof_06": 10,
+      "Prof_07": 7,
+      "Prof_08": 6,
+      "Prof_09": 9,
+      "Prof_10": 6,
+      "Prof_11": 7,
+      "Prof_12": 7
+    },
+    "faculty_relative_loads": {
+      "Prof_01": 0.25,
+      "Prof_02": 0.375,
+      "Prof_03": 0.5,
+      "Prof_04": 0.3125,
+      "Prof_05": 0.5625,
+      "Prof_06": 0.625,
+      "Prof_07": 0.4375,
+      "Prof_08": 0.375,
+      "Prof_09": 0.5625,
+      "Prof_10": 0.375,
+      "Prof_11": 0.4375,
+      "Prof_12": 0.4375
+    },
+    "max_faculty_daily_load": 3,
+    "consecutive_periods_over_three": 0,
+    "required_teaching_periods": 84
+  },
+  "feasible": true
+}

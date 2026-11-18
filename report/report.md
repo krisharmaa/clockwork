@@ -1,0 +1,544 @@
+# Multi-Objective College Timetable Optimization: final technical report
+
+**Course:** Optimization Techniques · **Group:** 14 · **Project duration:** eight weeks.
+
+| Member | Roll number | GitHub | Role |
+|---|---|---|---|
+| Akshat Tikaria | 241070005 | [akshattikaria](https://github.com/akshattikaria) | Group Leader |
+| Sharma Krish Amit | 241070036 | [krisharmaa](https://github.com/krisharmaa) | Member |
+| Rajesh Manavaditya | 241070040 | [Manavaditya-rajesh](https://github.com/Manavaditya-rajesh) | Member |
+| Paarth Maharshi | 241070050 | [PaarthMaharshi](https://github.com/PaarthMaharshi) | Member |
+
+**Professor:** Akhil Kulal · GitHub: [akhilkulal4050](https://github.com/akhilkulal4050).
+
+**Repository:** <https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH>.
+
+This report consolidates the original benchmark and the completed feasible-domain enhancement study in the professor's 19-section report structure. The original negative results remain part of the evidence. The final optimizer is an explicitly mutation-only memetic NSGA-II variant, compared with an unchanged strong greedy policy and a matched scalar-local ablation.
+
+**All college datasets and measured results are synthetic.** Group identities were supplied by the group; Section 18 summarizes contributions supported by actual commits and merged pull requests. Topic approval, access permissions and unrecorded weekly participation are not inferred from these records. The [original proposal and assignment](../problem/references/) are primary academic references; [the reference review](../docs/reference_review.md) records justified corrections and scope choices.
+
+## 1. Introduction and real-world motivation
+
+A college timetable coordinator assigns required weekly teaching sessions to time blocks, rooms, and qualified faculty. A room or teacher cannot serve two sessions simultaneously, and every attending student cohort must be free. Multi-period laboratories, room capacities, specialist room types, lunch, faculty availability, and teaching limits make feasible scheduling difficult.
+
+Feasibility is mandatory. Among feasible schedules, students and faculty may prefer compact teaching days, administrators may prefer appropriately sized rooms, and teachers may prefer balanced relative teaching loads. The system supports a choice among transparent alternatives rather than hiding quality trade-offs in one unexplained score.
+
+The academic question is whether problem-specific feasible variation improves a Pareto search compared with a strong constructive baseline. A second question asks whether NSGA-II selection adds value beyond the same local-search mechanisms. Both are empirical questions: the method is allowed to lose, and an instance may have a single globally ideal objective vector.
+
+## 2. Problem statement
+
+An **offering** is a subject delivered to specified student groups, with a fixed number of weekly sessions and one eligible teacher for all sessions. Each required session is an **event**. The coordinator chooses one start and compatible room for each event and one teacher for each offering.
+
+The inputs contain disjoint atomic student groups and sizes; rooms with capacity, type, and unavailable periods; faculty with qualifications, daily/weekly limits, and unavailable periods; offering demand and duration; and a day/period grid with mandatory lunch. The week repeats deterministically.
+
+An event can name several atomic groups. It reserves every listed group and sums their headcounts. For split laboratory batches, represent disjoint batches and list all appropriate batches on common lectures. Overlapping parent divisions and batches must not be modeled as independent cohorts. Default generated labs use the entire cohort; the model also supports shared atomic groups and specialized room kinds in custom instances.
+
+Outputs include feasible candidate archives, exact postprocessed non-dominated subsets of saved alternatives, objective values, constraint diagnostics, event CSV/JSON, and weekly grids for groups, faculty, and rooms. The timed legacy search uses floating-point comparisons. Exact postprocessing certifies non-domination among the saved schedule alternatives; global claims require the additional proofs in Sections 10 and 14.
+
+## 3. Literature review / existing approaches
+
+This is a problem-led timetable study. Published work supplies methodological foundations and context; the project does not claim to reproduce one particular paper or an International Timetabling Competition benchmark.
+
+| Reference | Role in this project |
+|---|---|
+| K. Deb, A. Pratap, S. Agarwal, T. Meyarivan, “A fast and elitist multiobjective genetic algorithm: NSGA-II,” *IEEE Transactions on Evolutionary Computation* 6(2), 182–197, 2002. [DOI:10.1109/4235.996017](https://doi.org/10.1109/4235.996017) | Non-dominated ranking, crowding, tournaments, and elitist parent–offspring survival. |
+| D. Brélaz, “New methods to color the vertices of a graph,” *Communications of the ACM* 22(4), 251–256, 1979. [DOI:10.1145/359094.359101](https://doi.org/10.1145/359094.359101) | Saturation-inspired ordering for the constructive baseline. This is DSatur-style timetabling, rather than literal ordinary graph coloring. |
+| A. Schaerf, “A survey of automated timetabling,” *Artificial Intelligence Review* 13, 87–127, 1999. [DOI:10.1023/A:1006576209967](https://doi.org/10.1023/A:1006576209967) | Educational timetabling, hard/soft requirements, and combinatorial structure. |
+| R. Lewis, “A survey of metaheuristic-based techniques for University Timetabling problems,” *OR Spectrum* 30, 167–190, 2008. [DOI:10.1007/s00291-007-0097-0](https://doi.org/10.1007/s00291-007-0097-0) | Constructive heuristics, neighborhood improvement, and feasibility challenges. |
+| E. Zitzler, L. Thiele, M. Laumanns, C. M. Fonseca, V. G. da Fonseca, “Performance assessment of multiobjective optimizers: An analysis and review,” *IEEE Transactions on Evolutionary Computation* 7(2), 117–132, 2003. [DOI:10.1109/TEVC.2003.810758](https://doi.org/10.1109/TEVC.2003.810758) | Declared multi-objective indicators and limits of front comparisons. |
+| Google OR-Tools, [CP-SAT solver documentation](https://developers.google.com/optimization/cp/cp_solver) and [modeling guide](https://developers.google.com/optimization/cp/cp_tasks). | Optional exact small-instance reference, with explicit statuses, bounds, time limits, and one worker. |
+| Q. Zhang, H. Li, “MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition,” *IEEE Transactions on Evolutionary Computation* 11(6), 712–731, 2007. [DOI:10.1109/TEVC.2007.892759](https://doi.org/10.1109/TEVC.2007.892759) | Decomposition and neighborhood replacement for the supplementary MOEA/D method. |
+| S. Bandyopadhyay, S. Saha, U. Maulik, K. Deb, “A Simulated Annealing-Based Multiobjective Optimization Algorithm: AMOSA,” *IEEE Transactions on Evolutionary Computation* 12(3), 269–283, 2008. [DOI:10.1109/TEVC.2007.900837](https://doi.org/10.1109/TEVC.2007.900837) | Inspiration for the simplified archive-guided annealing variant; no faithful paper reproduction is claimed. |
+| C.-L. Hwang, K. Yoon, *Multiple Attribute Decision Making: Methods and Applications*, Springer, 1981. [DOI:10.1007/978-3-642-48318-9](https://doi.org/10.1007/978-3-642-48318-9); T. L. Saaty, *The Analytic Hierarchy Process*, McGraw-Hill, 1980. | TOPSIS ranking and AHP pairwise-comparison weights for supplementary decision support. |
+| K. Miettinen, *Nonlinear Multiobjective Optimization*, Springer, 1999. [DOI:10.1007/978-1-4615-5563-6](https://doi.org/10.1007/978-1-4615-5563-6) | Scalarization foundations; finite heuristic weight sets do not guarantee full-front recovery. |
+
+Constructive methods give an interpretable, inexpensive reference. Constraint programming can prove small scalar optima and infeasibility. A Pareto population method can retain discrete trade-offs without requiring one coordinator-supplied weight vector. None of these references establishes superiority on the synthetic instances here; the saved experiments provide that evidence. More detailed source roles and claim boundaries are in [the literature notes](../literature/README.md).
+
+## 4. Decision variables
+
+Let $E$, $K$, $R$, $F$, and $G$ denote events, offerings, rooms, faculty, and atomic student groups. Let $D$ be days, $P$ the discrete within-day periods, and $T=D\times P$ the time grid. $F_k$ is the eligible faculty set for offering $k$. Event $e$ belongs to offering $k(e)$, has duration $\ell_e$, and attends groups $G_e$ with summed headcount $n_e=\sum_{g\in G_e}n_g$. A start $s=(d,p)$ occupies the $\ell_e$ consecutive periods $B_e(s)$; the code stores it as `day_index * periods_per_day + period_index`.
+
+Let $A_e$ contain joint alternatives $(s,r,f)$ satisfying individual block geometry, lunch, room capacity/type, faculty eligibility, and room/faculty availability. The exact binary decisions are
+
+$$z_{e,s,r,f}\in\{0,1\}\quad((s,r,f)\in A_e),\qquad y_{k,f}\in\{0,1\}\quad(f\in F_k).$$
+
+Here $z$ selects an event's time/room/teacher, and $y$ selects the offering's teacher. They are linked by
+
+$$\sum_{(s,r,f)\in A_e}z_{e,s,r,f}=1,\qquad \sum_{f\in F_k}y_{k,f}=1,$$
+
+$$\sum_{(s,r):\ (s,r,f)\in A_e}z_{e,s,r,f}=y_{k(e),f}\quad(e\in E,\ f\in F_{k(e)}).$$
+
+The last sum holds a specified $f$ fixed. Empty domains are infeasibility, not permission to omit an event. This joint formulation removes the proposal's unlinearized product of faculty assignment and occupancy.
+
+The heuristic uses an equivalent compact categorical encoding: one `(start, room)` gene per event and one faculty-ID gene per offering. Event order is deterministically derived from offering order and session count. The teacher decision is essential: if teachers were fixed, weekly workload imbalance could become constant even though the timetable changes.
+
+## 5. Objective functions
+
+All objectives are minimized. Let $P^*$ be the non-lunch teaching periods, $b_{v,d,p}$ the teaching occupancy of a student group or faculty member, and $p^-_{v,d},p^+_{v,d}$ its first/last occupied periods that day. An empty teaching day has gap zero; otherwise,
+
+$$\operatorname{gap}_{v,d}=\sum_{p\in P^*:\ p^-_{v,d}\le p\le p^+_{v,d}}(1-b_{v,d,p}).$$
+
+The compactness objective is
+
+$$f_1=\sum_{g\in G,d}\operatorname{gap}_{g,d}+0.5\sum_{f\in F,d}\operatorname{gap}_{f,d}.$$
+
+Common mandatory lunch is excluded, and free time before/after teaching is excluded. Faculty-specific unavailability inside a teaching span remains teaching-free internal time; the data cannot infer whether it contains an administrative meeting. The faculty factor 0.5 is an explicit policy choice. Separate student/faculty gaps are also reported.
+
+With room capacity $c_r$ and fixed total contact demand $Q=\sum_e\ell_e$,
+
+$$f_2=\frac1Q\sum_e\ell_e\frac{c_{r(e)}-n_e}{c_{r(e)}}.$$
+
+This is duration-weighted empty-seat fraction **during scheduled use**. It is neither campus room-hour utilization nor a reward for cancelling sessions. Capacity remains a hard constraint.
+
+Faculty $f$ has weekly allowance $H_f$, required teaching load $L_f$, relative load $\rho_f=L_f/H_f$, and mean relative load $\bar\rho=|F|^{-1}\sum_f\rho_f$. Workload imbalance is
+
+$$f_3=\sqrt{\frac1{|F|}\sum_{f\in F}(\rho_f-\bar\rho)^2}.$$
+
+All listed faculty, including zero-load faculty, participate. Overlapping eligibility makes assignments and workload genuinely variable; all sessions move together when an offering changes teacher. This measures relative teaching load, rather than research, administration, or preparation effort. The evaluator defines degenerate empty-demand/empty-faculty diagnostics as zero; a nonempty offering without an eligible teacher is infeasible.
+
+## 6. Constraints and assumptions
+
+Every reported timetable must satisfy all of the following; objective improvements cannot compensate for a violation.
+
+| Code | Hard requirement and implementation meaning |
+|---|---|
+| C1 | Exactly one complete placement per required event; exactly one eligible, offering-consistent teacher. Missing, extra, malformed, or unknown assignments are infeasible. |
+| C2 | At most one event in each room at each occupied period. |
+| C3 | At most one event taught by each faculty member at each occupied period. |
+| C4 | At most one event attended by each atomic student group at each occupied period. Shared events occupy every listed group. |
+| C5 | Room capacity at least summed headcount; exact room-kind match, including lab type. |
+| C6 | Every period of the event is available for its room and teacher; the block stays in one day and avoids lunch. A two-period lab consumes and checks both periods. |
+| C7 | Faculty weekly and daily loads do not exceed their limits, counted in periods rather than sessions. |
+| C8 | At most one session of an offering per day when its `distinct_days` flag is enabled; the generator enables it for repeated theory sessions. |
+
+For a joint alternative $q=(s_q,r_q,f_q)\in A_e$, write $z_{e,q}=z_{e,s_q,r_q,f_q}$. At every time-grid period $t$, room, faculty, and student occupancies respectively satisfy
+
+$$\sum_e\sum_{q\in A_e:\ r_q=r,\ t\in B_e(s_q)}z_{e,q}\le1\quad(r,t),$$
+
+$$\sum_e\sum_{q\in A_e:\ f_q=f,\ t\in B_e(s_q)}z_{e,q}\le1\quad(f,t),$$
+
+$$\sum_{e:\ g\in G_e}\sum_{q\in A_e:\ t\in B_e(s_q)}z_{e,q}\le1\quad(g,t).$$
+
+Let $E_k$ be the required events of offering $k$, and let $h_f$ denote the daily teaching allowance. Weekly and daily limits are
+
+$$\sum_{k:\ f\in F_k}\left(\sum_{e\in E_k}\ell_e\right)y_{k,f}\le H_f\quad(f),$$
+
+$$\sum_e\sum_{q\in A_e:\ f_q=f,\ d(s_q)=d}\ell_e z_{e,q}\le h_f\quad(f,d).$$
+
+For every offering $k$ marked `distinct_days` and each day $d$,
+
+$$\sum_{e\in E_k}\sum_{q\in A_e:\ d(s_q)=d}z_{e,q}\le1.$$
+
+If $U_r,U_f$ denote unavailable periods, then $A_e$ includes only alternatives with $f\in F_{k(e)}$, $c_r\ge n_e$, exact required room type, $B_e(s)\cap U_r=B_e(s)\cap U_f=\varnothing$, and a contiguous block lying in one day and excluding lunch. These restrictions implement C5/C6 for the entire block. The [full formulation](../formulation/README.md) gives additional notation and domain details.
+
+Assumptions are a fixed repeating week, equal-length periods, known demand, fixed session durations, atomic cohorts, and one teacher per offering. The default generator uses generic classrooms/labs and full-cohort labs. The model omits travel, individual elective enrollment, rotating weeks, team teaching, uncertain attendance, minimum faculty loads, fixed event starts, and non-teaching workload.
+
+## 7. Problem classification
+
+The problem is deterministic, finite, discrete, constrained, combinatorial, and multi-objective. Simplified feasibility contains graph coloring. Feasibility and room wastage admit binary linear formulations; gap indicators admit exact logical encodings. Relative-load SD is nonlinear. It would be incorrect to describe the complete three-objective problem as an ordinary linear program.
+
+Gradient methods do not directly represent categorical room/teacher decisions or no-clash logic. Exhaustive schedule enumeration grows rapidly. This motivates a constructive baseline, exact small references, and bounded heuristic search, with no general global-optimality promise.
+
+## 8. Baseline approach
+
+The strong baseline repeatedly constructs schedules using dynamic saturation/scarcity/degree ordering, long-block prioritization, room fit, compactness, and offering-level faculty selection. An offering's sessions are placed together while respecting teacher consistency and reserving its complete weekly load. The first construction is deterministic; subsequent constructions use seeded restricted candidate lists.
+
+Each completed attempt receives one full shared evaluation, including failed constructions. The repeated baseline retains a floating-point-comparison archive of feasible candidates; exact non-dominated subsets are now supplied by a separate postprocessing stage. This is stronger than comparing with one poor greedy schedule. The same constructive scheduling policy is unchanged in the final follow-up; the comparison adapter adds common observation and stopping, not a weaker heuristic.
+
+The public `greedy()` function returns one scalar-compromise feasible schedule or an explicit `SchedulingFailure`. Experimental repeated greedy returns an archive and is the primary comparison here. A heuristic failure never proves infeasibility.
+
+## 9. Optimization algorithm selection and justification
+
+The development sequence follows the problem structure rather than selecting an algorithm first:
+
+1. Implement the model, feasibility-certified generator, evaluator, and constructive baseline.
+2. Compare standard constrained NSGA-II with random categorical initialization, then add seeding, reconstruction repair, and short local search.
+3. Retain the original negative quality results. Diagnose infeasible offspring and the cost of repeatedly rebuilding schedules.
+4. Develop a feasible-domain mutation-only memetic NSGA-II, freeze it after development, and compare it on new instance seeds under both evaluation and time allocations.
+5. Compare its NSGA-II selection/survival bundle with matched scalar-local trajectories so improvements are not automatically credited to population selection.
+
+NSGA-II provides a transparent population comparator for discrete Pareto trade-offs. The final method retains rank/crowding tournaments and elitist survival but intentionally omits crossover because offering-level gene exchanges destroy shared resources. The evidence supports the final feasible-search package on the declared primary instances; it does not establish that NSGA-II selection consistently improves over the strong local-search ablation.
+
+## 10. Multi-objective formulation
+
+Feasible objective vector $u$ dominates $v$ if every $u_i\le v_i$ and at least one inequality is strict. Equal vectors are one trade-off vector, even if several schedules attain them. Search uses Deb-style constraint domination: feasible candidates outrank infeasible candidates; among infeasible candidates smaller positive violation wins; among feasible candidates ordinary Pareto dominance applies.
+
+The integer violation score includes incompleteness, invalid assignments, resource-period excess, blocked periods, same-day excess, and teaching overload. It guides search and has no interpretation as an acceptable quality trade-off. Only violation-zero schedules enter the search archives, raw hypervolume calculations, and timetable exports. Strict mathematical non-domination of the saved alternatives is established by the exact cleanup described below.
+
+Possible conflict is established by exhaustive controlled micro-instances: compactness/room fit has global front `(0,0.25,0)` and `(1,0,0)` after 64 complete candidate evaluations; compactness/workload has `(0,0,0.5)` and `(1,0,0)` after nine. They are tiny mathematical examples, not college-scale measurements.
+
+Conflict is instance-dependent. Exact lower-bound attainment proves a singleton global ideal `(0,14/55,sqrt(1/450))` for the four checked small college instances (seeds 10,20,30,1010). Medium/large heuristic archives show discovered trade-offs without certifying their full global fronts. The meaning and proof scope of these statements are developed in Section 14.
+
+### Numerical precision and strict non-domination
+
+A later exact-rational audit found an important distinction between the timed search archives and mathematically strict fronts. The frozen algorithms compare floating-point room fractions and workload SD. Equal exact workload variances can produce values one unit in the last place apart for different load multisets; this can reverse a tie and incorrectly retain a truly dominated point. All affected schedules remain feasible. The issue concerns Pareto membership/cardinality, rather than hard-constraint validity.
+
+For example, raw `large_1010_evaluations_memetic_0` archive indices 8 and 9 both have gap value 5 and exact workload variance `83/10000`, but room waste `2701/13200` versus `43/200`. The first mathematically dominates the second. Their recorded SD values differ by approximately one floating-point unit, so the legacy archive retained both.
+
+The independent postprocessor compares exact keys `(gaps, room fraction, workload variance)`. SD is nonnegative, so comparing exact variance gives the same mathematical ordering as comparing SD. Let $C$ be the least common multiple of room capacities and $D_H$ the least common multiple of weekly faculty allowances. With $z_f=L_f(D_H/H_f)$,
+
+$$f_2=\frac{\sum_e\ell_e(c_{r(e)}-n_e)(C/c_{r(e)})}{CQ},\qquad
+f_3^2=\frac{m\sum_f z_f^2-(\sum_f z_f)^2}{m^2D_H^2},\quad m=|F|.$$
+
+Both keys are exact rational quantities; the gap key is an integer or half-integer. This removes floating-point tie ambiguity without changing the problem or optimizing a different objective.
+
+Exact cleanup removes 10 dominated points from eight historical runs and 53 from 36 final-study runs, leaving **759** and **3,242** exactly non-dominated saved alternatives respectively. The raw counts **769** and **3,295** remain intact as measurement records. Canonical recalculation changes any run's computed HV by at most approximately **3.33e-16**; every printed result and the four primary percentage gains are unchanged. Tiny indicator impact does not make the original strict non-domination claim correct, so the corrected fronts are published separately.
+
+Cleanup is **post-study analysis outside the measured runtime**, and the frozen package, source snapshots, raw schedules, timing traces, and measurements are preserved. It establishes non-domination only among the saved archive candidates. It does not replay the complete evaluated search trace, recover candidates previously discarded by the floating-point algorithm, or establish global Pareto optimality. New strict-front workflows therefore include `experiments/exact_fronts.py`; commands appear in Section 19.
+
+## 11. Algorithm implementation
+
+| Component | Actual implementation and boundary |
+|---|---|
+| Standard NSGA-II | Independent domain-valid categorical initialization; whole-offering uniform crossover; time/room/swap/teacher mutations; constrained sorting, crowding tournaments, and parent–offspring elitist selection. Domain-valid genes alone do not guarantee resource feasibility. |
+| Original enhancement | Half the initial population constructed; inheritance-biased reconstruction repair; sampled compaction, room-fit, teacher-change, and whole-offering teacher-exchange proposals. It is neither a Kempe chain nor minimum-disruption repair. |
+| Final feasible initialization | Repeated constructive attempts fill a feasible population, bounded by four times the requested population and the resource limits. Failed attempts are charged. The measured follow-up uses population 24. |
+| Final local variation | Five resource-checked neighborhoods: relocation, smaller-room assignment, event swap, joint reinsertion under a different offering teacher, and joint teacher exchange. Complete block checks precede final shared evaluation. Unsuccessful moves return an explicit no-op. |
+| Faculty intensification | Every sixth offspring proposal invokes a branch-and-bound reassignment of up to eight offerings at fixed times/rooms, capped at 12,000 branch nodes. With common weekly allowances, exact integer squared-load sum is equivalent to relative-load SD. Unequal allowances produce a safe no-op. |
+| Diversification | Periodic randomized reconstruction is attempted every 31st proposal unless the faculty-search branch takes priority. No generator certificate is used. |
+| Final NSGA-II selection | Rank/crowding binary tournaments and environmental selection from parent plus offspring populations genuinely affect the search. Mutation-only variation is an explicit variant, not an unimplemented crossover claim. |
+| Scalar-local ablation | Identical construction/RNG prefix, then independent fixed positive scalar directions for local trajectories, uniform trajectory choice, and feasible scalar-improving acceptance. It removes the NSGA-II selection/survival bundle. Subsequent RNG use and candidates diverge. |
+| Search archive and exact cleanup | Every fully evaluated feasible proposal can enter the legacy floating-point-comparison archive, including locally rejected proposals. A separate exact postprocessor removes mathematically dominated saved alternatives and keeps raw-index references. |
+
+For common weekly allowance $H$, total teaching demand fixes the mean relative load, so faculty intensification can minimize integer $C=\sum_f L_f^2$ without approximating $f_3$. Assigning offering load $w$ to a teacher currently at load $L$ increases $C$ by $2Lw+w^2$. The branch-and-bound lower bound adds each remaining offering's smallest independent marginal cost to the partial cost; shared-teacher competition can only increase those marginals. Faculty eligibility, full-block clashes/availability, daily limits, and weekly limits are checked on insertion. Exhaustion proves optimality only within the selected fixed-time neighborhood; a node-limited result has no such completion guarantee. The returned candidate is always checked on all three objectives.
+
+All complete evaluator calls during search are charged, including initialization, duplicates, failed repair results, and rejected local candidates. Partial occupancy, gap, and integer-workload calculations are disclosed and timed; they are not mislabeled as complete evaluator calls. Native counters distinguish first/final no-ops, neighborhood calls, faculty nodes, and interrupted progress.
+
+The original version had 136 automated tests passing, including a fresh snapshot installation and CLI check. Before the final held-out freeze, **201 tests passed in 15.54 seconds**, recorded in [the saved test log](../results/enhancement_validation/tests_before_validation.txt). Tests cover hand-calculated objectives, every important hard constraint, shared cohorts, labs/lunch, malformed/infeasible inputs, all preset sizes, seeds/serialization, dominance/crowding, independently cross-checked hypervolume, exact references, feasible operators, integer workload search, evaluator accounting, timing cutoffs, and cache/resume integrity. Historical test counts refer to their measured versions, not fabricated student activity.
+
+## 12. Experimental setup
+
+### Data generation and feasibility
+
+All main data are synthetic and use the unchanged generator presets:
+
+| Preset | Events | Atomic cohorts | Rooms | Faculty | Required contact periods |
+|---|---:|---:|---:|---:|---:|
+| Small | 40 | 2 | 5 | 6 | 44 |
+| Medium | 150 | 8 | 12 | 20 | 166 |
+| Large | 400 | 20 | 25 | 50 | 440 |
+
+Defaults use five days, eight grid periods, and lunch at zero-based period 4. Cohort sizes cycle through 24/36/48/54; room capacities through 30/45/60/90. Labs last two periods. Faculty allowances are 20 periods weekly and six daily. Availability is sampled at rate 0.08 from resource periods unused by a separately constructed feasible certificate; eligibility retains that certificate's teacher and adds alternatives.
+
+The certificate is independently checked outside the search, saved separately, and never passed to an optimizer or hidden in its metadata. Thus failure on a generated instance is a search failure. This is a planted-feasible, potentially slack distribution, not an unbiased sample of real colleges. Configurable parameters and JSON fields are documented in [data/README.md](../data/README.md).
+
+### Historical benchmark and development
+
+The original benchmark contains 192 runs, 109,440 complete search evaluations, seven instances, and 769 archived feasible schedules. Small instance seeds are 10/20/30 with ten solver seeds each; medium uses 10/20 with six seeds each; large uses 10/20 with three seeds each. Four methods—greedy, plain NSGA-II, seeding-only, and original enhanced—use population 24 and caps 720/360/240 by size. These records are retained under `results/benchmark/`.
+
+A separate 12-run development pilot used instance/solver seed 9000, all three sizes, four candidate policies, and 240 complete evaluations. The larger supplied 64-run development matrix was not executed in full. Development outcomes were not pooled with held-out validation. No operator rates or generator settings were selected in response to validation results.
+
+### Frozen final validation
+
+The predeclared final matrix is:
+
+| Size | Instance seeds | Solver seeds | Complete-evaluation cap | Separate wall allocation | Runs across four methods and both protocols |
+|---|---|---|---:|---:|---:|
+| Small regression | 1010 | 0,1,2 | 720 | 2.5 s | 24 |
+| Medium primary | 1010,1020,1030 | 0,1,2 | 360 | 6 s | 72 |
+| Large primary | 1010,1020,1030 | 0,1,2 | 240 | 16 s | 72 |
+
+All **168 runs** completed, totaling **76,086 complete search evaluations**. Four methods were paired: unchanged greedy, original enhanced NSGA-II, final feasible memetic NSGA-II, and scalar-local search. Every run returned a feasible archive. The [manifest](../results/enhancement_validation/manifest.json) records the exact configuration, versions, per-file hashes, and measured source snapshot.
+
+Frozen final package SHA-256: `7ad242177abf49f65dfd192b3ecad6fe614644abf76413b39099aa897ddd854c`. Python: `3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]`; platform: `Linux-6.18.57-x86_64-with-glibc2.41`. Recorded NumPy/Matplotlib/OR-Tools versions are `{'numpy': '2.3.5', 'matplotlib': '3.10.8', 'ortools': '9.15.6755'}`.
+
+### Resource protocols and indicators
+
+Equal-evaluation runs charge the same complete evaluator cap within a size. Equal-time runs use the same wall allocation, with a 100,000-evaluation safety ceiling. Common imports, input validation, and construction-cache reset are preflight; algorithm preprocessing, initialization, direct checks, scoring, selection, observer work, and archive bookkeeping are timed. Methods run sequentially in rotated order. Hardware/load limit timing generalization.
+
+The common observer timestamps completion of each full objective/constraint calculation. Cutoff quality uses only results completed by the allocation. Bounded atomic operations may overrun; late results are charged and excluded from quality, and overshoot is reported. This is the same allocation with late-result exclusion, rather than strict preemption or identical actual runtime. It does not estimate a time prefix from average time per evaluation. Plots use sampled stepwise prefixes; shading is descriptive one-SD variability across solver runs.
+
+Hypervolume is the exact 3-D union of dominated boxes after fixed a priori scaling by `days * non-lunch periods/day * (groups + 0.5*faculty)`, `1`, and `0.5`, with reference `(1.1,1.1,1.1)`. It is not fitted per method/run. The loose gap bound can underweight compactness. Maximum reference-box volume is 1.331; HV is not a percentage or administrative utility. Cross-size HV is not one common decision problem.
+
+For normalized feasible front $A$ and reference $r$, the indicator is
+
+$$HV(A;r)=\lambda_3\!\left(\bigcup_{v\in A}[v_1,r_1]\times[v_2,r_2]\times[v_3,r_3]\right),$$
+
+where $\lambda_3$ is three-dimensional volume. Empty feasible archives have HV zero and remain in all-run averages.
+
+Other indicators include feasible-run/evaluation rates, constraint components, runtime, archive size, raw objectives, duplicates, and spacing. Spacing is undefined with fewer than two vectors. The historical optional empty-target coverage aggregate uses zero by convention and is excluded from conclusions; final comparisons preserve undefined coverage and record defined-pair counts.
+
+Paired comparisons match instance and solver seed. Run-level wins are descriptive; instance-mean tests avoid treating repeated solver seeds as independent colleges. Only three independent primary instances per size give low statistical power. No multiplicity-adjusted or institutional superiority claim is made.
+
+## 13. Results and Pareto analysis
+
+### Original results retained: why the first enhancement was revised
+
+The original enhanced method found feasible schedules but had lower mean HV than repeated greedy at every size:
+
+| Size | Greedy mean HV | Original enhanced mean HV | Greedy mean seconds | Original enhanced mean seconds |
+|---|---:|---:|---:|---:|
+| Small | 0.935319 | 0.935173 | 7.918 | 2.432 |
+| Medium | 1.017029 | 0.981213 | 18.550 | 6.087 |
+| Large | 0.937241 | 0.909322 | 48.520 | 16.236 |
+
+Greedy, seeded, and original enhanced each found feasible schedules in 48/48 runs. Plain NSGA-II found none in 48 runs at these caps; those empty fronts retain HV zero. This is bounded-search failure on known-feasible data, not infeasibility or proof that NSGA-II can never work. Its ending violation ranges were 1–8 small, 75–89 medium, and 310–342 large.
+
+From saved original counters, approximately 91.1%, 94.6%, and 97.2% of raw offspring required repair by size. These percentages describe offspring incidence, not the fraction of total CPU time or evaluations spent repairing. Accepted local proposals were approximately 18.6%, 12.7%, and 8.5%. This diagnosed destructive variation and motivated feasible local refinement. Full original tables, failures, and histories remain in [the historical summary](../results/benchmark/summary.md) and raw records.
+
+### Final held-out comparison with the unchanged greedy policy
+
+| Size | Protocol | Greedy mean HV | Final NSGA-II mean HV | Relative change in mean HV | Paired final wins/ties/losses |
+|---|---|---:|---:|---:|---|
+| Small | evaluations | 0.934747 | 0.930290 | -0.477% | 1/0/2 |
+| Small | wall_time | 0.929781 | 0.930290 | +0.055% | 2/0/1 |
+| Medium | evaluations | 1.008330 | 1.056105 | +4.738% | 9/0/0 |
+| Medium | wall_time | 0.988710 | 1.060477 | +7.259% | 9/0/0 |
+| Large | evaluations | 0.940824 | 0.977304 | +3.878% | 9/0/0 |
+| Large | wall_time | 0.930485 | 1.013967 | +8.972% | 9/0/0 |
+
+The final method has higher mean HV on both primary sizes under both resource protocols, with nine paired wins in each of those four conditions. Small results remain mixed. Relative percentages divide the difference between method means by the greedy mean; they do not turn HV into a utility percentage.
+
+At equal complete evaluations, final mean runtime was 2.928 versus 20.215 seconds for medium and 8.041 versus 51.671 seconds for large (final versus greedy), ratios about 6.90× and 6.43× in this environment. Under common wall allocations, final mean evaluator counts were about 948 versus 106 medium and 800 versus 75 large. Partial search costs are included in those wall times.
+
+All four final-study methods returned feasible archives in all their runs: 21/21 instance/solver combinations per protocol, or 42/42 runs per method. Every reported archive has violation zero. All 3,295 raw final archived schedules and seven separate certificates were rechecked for feasibility; nine late completed evaluations were excluded. Exact cleanup subsequently retains 3,242 non-dominated saved alternatives from those raw archives. Verification also reconstructed the on-time fronts and checked 42 common-initialization groups. See [the verification record](../results/enhancement_validation/verification.json).
+
+### Raw objective changes
+
+These are means of each run's best feasible value **per objective**, conditional on feasible archives. Different columns may belong to different schedules; they are not simultaneous ideal vectors.
+
+| Size | Protocol | Method | Mean run-best gaps | Mean run-best unused capacity | Mean run-best workload SD |
+|---|---|---|---:|---:|---:|
+| Small | evaluations | greedy | 0.000 | 0.254545 | 0.047140 |
+| Small | evaluations | memetic | 0.000 | 0.259091 | 0.047140 |
+| Small | wall_time | greedy | 0.000 | 0.259091 | 0.047140 |
+| Small | wall_time | memetic | 0.000 | 0.259091 | 0.047140 |
+| Medium | evaluations | greedy | 0.000 | 0.182173 | 0.050272 |
+| Medium | evaluations | memetic | 0.056 | 0.184092 | 0.025650 |
+| Medium | wall_time | greedy | 0.000 | 0.183333 | 0.059463 |
+| Medium | wall_time | memetic | 0.000 | 0.183490 | 0.024008 |
+| Large | evaluations | greedy | 1.722 | 0.202138 | 0.073058 |
+| Large | evaluations | memetic | 2.444 | 0.203746 | 0.053389 |
+| Large | wall_time | greedy | 2.222 | 0.203114 | 0.077700 |
+| Large | wall_time | memetic | 1.889 | 0.202980 | 0.035238 |
+
+At equal evaluations, workload balance improves substantially while the mean best room wastage and gaps can worsen. A higher-HV front does not imply that every greedy point is dominated or that every coordinator would prefer every new schedule. The fixed gap scale makes raw timetable interpretation especially important.
+
+### Pareto and convergence visualizations
+
+![Medium exact non-dominated saved alternatives by method](../figures/exact_fronts/enhancement_validation/medium_1010_wall_time.png)
+
+![Large exact non-dominated saved alternatives by method](../figures/exact_fronts/enhancement_validation/large_1010_wall_time.png)
+
+These plots use one fixed instance each. For each method, saved alternatives across its solver seeds are pooled and filtered using exact rational objective ordering. Each displayed method set is therefore non-dominated among that method's saved alternatives; another method can still dominate its points. These are not global Pareto certificates. The original floating-point plots remain preserved with the measured study. Opposing objective changes among discovered alternatives cannot rule out an undiscovered joint ideal.
+
+![Medium sampled anytime prefixes](../figures/enhancement_validation/medium_anytime.png)
+
+![Large sampled anytime prefixes](../figures/enhancement_validation/large_anytime.png)
+
+The anytime plots use actual completion timestamps with sample-and-hold prefixes, rather than interpolating an undiscovered timetable. One-SD bands describe solver-run variability, not independent-instance confidence intervals. The [complete final summary](../results/enhancement_validation/summary.md) retains original enhanced and scalar-local results alongside these primary comparisons.
+
+## 14. Comparison and discussion
+
+### Does NSGA-II selection add value?
+
+| Size | Protocol | Final NSGA-II mean HV | Scalar-local mean HV | NSGA-II paired wins/ties/losses |
+|---|---|---:|---:|---|
+| Small | evaluations | 0.930290 | 0.930231 | 2/0/1 |
+| Small | wall_time | 0.930290 | 0.930236 | 2/0/1 |
+| Medium | evaluations | 1.056105 | 1.054147 | 5/0/4 |
+| Medium | wall_time | 1.060477 | 1.061314 | 6/0/3 |
+| Large | evaluations | 0.977304 | 0.978518 | 4/0/5 |
+| Large | wall_time | 1.013967 | 1.011318 | 5/0/4 |
+
+Scalar-local has a slightly higher mean on medium wall-time and large equal-evaluation runs; NSGA-II has the higher mean on medium equal-evaluation and large wall-time runs. There is no consistently positive selection-bundle effect. The evidence supports the new initialization/variation/intensification package while leaving the incremental benefit of NSGA-II selection unresolved. The bundle comparison does not isolate full feasible initialization, an individual neighborhood, or faculty branch-and-bound.
+
+Each primary condition has only three independent instances. Instance-mean sign tests give p=0.25 for final NSGA-II versus greedy even though all nine paired runs favor it. Smaller run-level p-values are descriptive because runs share instances. These results support bounded improvement on the declared synthetic cases; they do not establish broad statistical, institutional, or universal superiority.
+
+### Supplementary methods and features (added after the validated study)
+
+The held-out validation above was frozen before the work in this subsection existed. **The validated final method of this report is still the feasible-domain memetic NSGA-II**, and every headline claim refers to it. The items below were added afterwards. They are implemented and tested, but their evidence is narrower, and none of them changes the results reported in Sections 12-14.
+
+These supplementary studies retain scalar run summaries rather than complete schedule archives or a frozen source manifest. The final audit checked aggregate arithmetic without rerunning timed measurements; it cannot independently reconstruct supplementary feasibility, exact fronts or timings from those records. The historical “MOEA/D, Tchebycheff” measurements used augmentation coefficient 0.001; current plain Tchebycheff uses zero augmentation. AMOSA demonstrations predate the correction that makes its `alpha` parameter control cooling. The saved measurements do not describe those corrected implementations.
+
+| Addition | Where | What it is, and the evidence behind it |
+|---|---|---|
+| MOEA/D (decomposition; Tchebycheff or weighted-sum scalarization) | `src/timetable/moead.py` | Reuses the feasibility-preserving moves and faculty search. Matched comparison in `results/moead_paired` (below). |
+| AMOSA-inspired archived multi-objective simulated annealing | `src/timetable/amosa.py` | Simplified archive-guided annealing, rather than a faithful reproduction of the original dominance-volume scheme. Only single-run demonstrations exist; no multi-seed comparison is claimed. |
+| CP-SAT weighted-sum and epsilon-constraint runs | `src/timetable/exact.py` | Certify the two-objective (gaps, room wastage) front of small instances. Workload balance is not in the CP-SAT model, so this is not a three-objective front. |
+| TOPSIS with AHP-derived weights and weight sensitivity | `src/timetable/mcdm.py` | Picks one recommended timetable from a front and reports how the choice changes with the weights. A decision aid, not an optimizer. |
+| Disruption re-optimisation | `src/timetable/disruption.py` | Minimal-change repair and epsilon-constraint re-optimisation after an absence or room closure ([details](../docs/disruption.md)). |
+| Clockwork website | `api/`, `frontend/` | Runs the final method and the greedy baseline, shows measured results only, and adds accounts, calendar, leave and publishing. The other algorithms run only as an optional advanced benchmark. |
+
+**MOEA/D against the final method.** On fresh synthetic instances (generator seeds 3010/3020/3030), with the same instance, solver seed and evaluation cap for every method:
+
+| Size (budget) | Pairs | Memetic vs greedy (wins/losses) | MOEA/D-Tchebycheff vs memetic (wins/losses/ties) | Median HV difference, MOEA/D − memetic | Sign test p |
+|---|---:|:---:|:---:|---:|---:|
+| Medium (360 evaluations) | 15 | 15/0 | 7/8/0 | -0.00030 | 1.000 |
+| Large (240 evaluations) | 6 | 6/0 | 6/0/0 | +0.03690 | 0.031 |
+
+Both methods beat repeated greedy in every pair, which is consistent with the validated study. The medium sign test detects no difference; this does not establish equivalence. On the two large instances MOEA/D had the higher hypervolume in all 6 pairs. This is a result in MOEA/D's favour on those saved runs. It is also a small supplementary experiment (two large instances, three seeds, evaluation budget only, no wall-time protocol, not pre-declared), so it identifies a candidate for a properly declared follow-up comparison. The displayed sign tests use solver-run pairs clustered within instances; they do not establish independent-instance significance. With two independent large instances even two instance-mean wins give two-sided p = 0.5. Historical augmented Tchebycheff and weighted-sum scalarization gave no detectable hypervolume difference (medium 6/9, large 2/4 wins/losses). Keeping every evaluated non-dominated point in an external archive is a possible explanation, not an isolated causal finding. The finite weight-grid support counts in the supplementary summary do not prove points mathematically unsupported.
+
+**Heuristics against certified fronts.** For a 10-event synthetic family with a deliberate gaps-versus-room conflict, CP-SAT certified the complete (gaps, room wastage) front of 6 of 8 instances: 16 points in total, 2 of them unsupported. Exact weighted-sum runs found 0 of the unsupported points; the epsilon-constraint method found all of them. With 300 evaluations the memetic method attained 37 of 80 certified points over 30 runs (minimum gaps in 30 runs, minimum room wastage in 5). The heuristics are therefore not optimal on this adversarial family, and the exact proofs did not finish within the time limit for two of the eight 10-event instances; they were not attempted at 150 or 400 events. Full tables: `results/exact_gap/summary.md` and `docs/ot_advanced_methods.md`.
+
+The instance in `data/itc_inspired` is a synthetic instance in the style of ITC-2007 curriculum timetabling. It is not an official ITC benchmark instance, and no ITC validation is claimed.
+
+### Exact reference results and guarantee boundaries
+
+The optional CP-SAT reference uses OR-Tools 9.15.6755, one worker, seed 0, and a 20-second solver limit excluding model build. On reference small seed 10 it independently proved:
+
+| Scalar objective | Status | Value | Best bound | Total runtime | Independently evaluated full objective vector |
+|---|---|---:|---:|---:|---|
+| Gaps | OPTIMAL | 0 | 0 | 2.746 s | (0, 0.4121212121, 0.1598610508) |
+| Room waste | OPTIMAL | 14/55 | 14/55 | 2.321 s | (14.5, 0.2545454545, 0.2544056254) |
+
+Total runtime includes model construction/extraction. These are scalar optima; unoptimized axes can be poor because tie-breaking is unconstrained. CP-SAT `FEASIBLE` would provide an incumbent without an optimality proof; `UNKNOWN` would not prove infeasibility. No workload surrogate is advertised as the exact three-objective problem. [Exact-model documentation](../docs/exact.md) and saved outputs provide the details.
+
+A stronger, independent lower-bound certificate gives the singleton global ideal for small seeds 10,20,30,1010. Nonnegative gaps give $f_1\ge0$; independent best-fit compatible rooms give exact $f_2\ge14/55$. An exact integer dynamic program allocates twelve indivisible three-period offerings and four two-period offerings to six common-allowance-20 faculty bins, dropping eligibility and temporal interactions. Its minimum squared-load sum is 328, giving
+
+$$f_3^2\ge\frac{328}{6\cdot20^2}-\left(\frac{44}{120}\right)^2=\frac1{450}.$$
+
+Actual feasible schedules attain all three bounds simultaneously, with integer zero gaps, exact rational room fraction 14/55, and loads `[6,6,8,8,8,8]`. Each checked small instance therefore has singleton global objective front `(0,14/55,sqrt(1/450))`, although many schedule identities may attain it. This is a proof about the fixed cases, not every generated seed.
+
+For held-out small_1010, the final memetic equal-evaluation run with solver seed 1 attains the ideal. The other two memetic seeds are worse, so one globally optimal run coexists with an unfavorable small-case mean. Both the success and the reliability limitation are retained. Certificates are in [the original small record](../results/benchmark/small_ideal_certificates.json) and [the final small record](../results/enhancement_validation/small_ideal_certificates.json).
+
+There is also a workload-only global certificate on all three held-out medium cases. Their 166 periods across 20 equal-allowance faculty have integer-load relaxation minimum `14*8² + 6*9² = 1382`, with exact relative-load variance `21/40000`. Feasible memetic/local schedules attain it. This proves the global minimum of $f_3$ alone; it proves neither the other objectives nor the global three-objective front. Large-case bounds were not attained; nonattainment of a relaxed bound does not itself establish nonoptimality.
+
+## 15. Practical interpretation
+
+A coordinator chooses a whole feasible timetable using declared priorities. Exports include fewest gaps, best room fit, balanced workload, and an observed-archive-normalized compromise. The compromise is a specified preference rule rather than a unique mathematical knee; selections can coincide.
+
+The following final examples use the first configured primary instance and solver seed 0 under the common wall allocation. Both methods use the same preference: lexicographic `(gaps, room, SD)` or `(SD, gaps, room)`. All columns in each row belong to the **same complete timetable**.
+
+| Instance | Method | Preference | Gaps | Unused capacity | Workload SD | Student gaps | Faculty gaps | Faculty load range |
+|---|---|---|---:|---:|---:|---:|---:|---|
+| medium_1010 | greedy | fewest_gaps | 0 | 0.187550 | 0.117367 | 0 | 0 | 5–12 |
+| medium_1010 | greedy | balanced_workload | 3 | 0.192972 | 0.050249 | 0 | 6 | 6–11 |
+| medium_1010 | memetic | fewest_gaps | 0 | 0.185542 | 0.050249 | 0 | 0 | 6–10 |
+| medium_1010 | memetic | balanced_workload | 2 | 0.191165 | 0.022913 | 0 | 4 | 8–9 |
+| large_1010 | greedy | fewest_gaps | 3 | 0.208333 | 0.110454 | 1 | 4 | 5–14 |
+| large_1010 | greedy | balanced_workload | 9.5 | 0.208333 | 0.078740 | 0 | 19 | 5–11 |
+| large_1010 | memetic | fewest_gaps | 1.5 | 0.208333 | 0.110454 | 0 | 3 | 5–14 |
+| large_1010 | memetic | balanced_workload | 23.5 | 0.205985 | 0.036056 | 8 | 31 | 8–10 |
+
+For medium_1010, the final gap-priority timetable has zero gaps, better room fit, and lower workload SD than the displayed greedy gap-priority timetable. For large_1010, the workload-priority final timetable greatly improves relative balance but has 23.5 gap units versus greedy's 9.5; that is a concrete administrative trade-off rather than a uniformly better timetable. A coordinator who prioritizes compactness may choose a different point.
+
+![Greedy medium group timetable](../figures/enhancement_validation/timetables/medium_1010_greedy_fewest_gaps.png)
+
+![Final medium group timetable](../figures/enhancement_validation/timetables/medium_1010_memetic_fewest_gaps.png)
+
+The displayed examples and their original preferences were selected from the legacy floating-point archives. The final audit checked their raw archive indices: all eight survive exact cleanup and remain non-dominated among their respective saved alternatives. The images show one group's weekly grid, rather than the entire faculty allocation. Complete event JSON/CSV and all group/faculty/room CSV grids are in [the final timetable exports](../results/enhancement_validation/timetables/). The [representative index](../results/enhancement_validation/representatives.json) records exact selection and archive references. Human-readable periods start at 1; model slots are zero-based.
+
+## 16. Limitations
+
+- Data are synthetic and planted feasible, with structural and resource-slack bias. No real-college or ITC validation is claimed. Certificates establish feasibility, not representativeness.
+- Final primary results use only three independent instances per size and three solver seeds each. The small regression has one instance. Statistical generalization is limited despite consistent primary paired wins.
+- The small global ideal makes a broad global trade-off front unnecessary there. Cleaned fronts are exactly non-dominated among saved candidates, with no global completeness proof for medium/large cases. Legacy floating-point archives can contain spurious non-dominated points from numerical ties.
+- Final small equal-evaluation mean quality regresses; scalar-local remains competitive. The evidence does not establish a consistent NSGA-II selection benefit or isolate one enhancement component.
+- Equal complete evaluations are not equal compute. Wall allocations permit bounded overshoot with late results excluded. Hardware/load, common instrumentation, and caching policy affect times.
+- Hypervolume's conservative fixed gap scale can underweight compactness. No indicator/reference-scale sensitivity study has been completed, and HV is not a coordinator utility.
+- Relative teaching load omits research, administration, and preparation effort. Individual unavailability inside a teaching span counts as teaching-free time. Specialized room kinds/shared cohorts are supported in custom data but not generated by default.
+- The repeating week omits individual elective enrollment, travel, rotating weeks, fixed starts, team teaching, uncertainty, and minimum faculty loads. Stability after a disruption is handled only by the supplementary re-optimisation module, outside the validated study.
+- Structured faculty search supports equal weekly allowances; it safely returns unchanged for unequal allowances. General exact workload optimization and college-scale Pareto enumeration are not implemented.
+- The larger five-instance/30-solver-seed study, indicator/reference-scale sensitivity, real-data adapters, NSGA-III, a weighted GA and Excel-specific export are not done. MOEA/D, AMOSA, CP-SAT weighted-sum/epsilon-constraint runs, TOPSIS/AHP decision support, disruption re-optimisation and the website now exist as supplementary work (Section 14). They were added after the held-out study was frozen: MOEA/D has one small matched study, AMOSA has single-run demonstrations only, and the CP-SAT fronts cover two objectives on 10-event instances. None of this is a substitute for authentic contribution evidence.
+- Approval, group identities, private access, and eight weeks of individual contribution history cannot be inferred from generated artifacts, local tests, or one publication commit.
+
+## 17. Future work
+
+First validate atomic cohorts, qualification sets, lab equipment, teaching allowances, and preferences with a coordinator using anonymized real data. Expand independent instance diversity and realistic resource pressure before broadening performance claims.
+
+Next run the larger configured study and reference/scale sensitivity; add component-specific ablations, independent initialization/selection/variation RNG streams for variance control, and profiling-driven incremental checks. Study whether strong scalar-local search should be the practical default when population selection adds little.
+
+Exact epsilon-constraint fronts on tiny cases and minimum-disruption rescheduling, listed here in the earlier version of this report, now exist as supplementary work (Section 14). What remains: a pre-declared held-out comparison of MOEA/D with the memetic method under both evaluation and wall-time protocols, prompted by its lead on the two large supplementary instances; a multi-seed evaluation of AMOSA; an exact treatment of the workload objective so that three-objective fronts can be certified; unequal-allowance structured assignment; and import of the official ITC-2007 instances with a faithful rule mapping (the current ITC-style instance is synthetic). New algorithms should answer observed limitations rather than expand a name list.
+
+## 18. Individual contributions
+
+The following summarizes actual commits and merged pull requests reachable from the audited `main` revision `343b260`. Names, roll numbers and the Group Leader role were supplied by the group. The descriptions concern recorded changes and are available for member review; they do not infer unrecorded work or exclusive authorship from bulk publication commits.
+
+| Member | Recorded contribution | History evidence |
+|---|---|---|
+| Akshat Tikaria (Group Leader) | Published/integrated core and validated memetic releases, experiments, tests and academic deliverables; published exact-front reporting and final audit cleanup. | [9947d9d](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/commit/9947d9d), [6e94681](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/commit/6e94681), [14888c6](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/commit/14888c6), [343b260](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/commit/343b260) |
+| Sharma Krish Amit | Integrated Clockwork frontend/API, accounts and calendar; added disruption re-optimization, website workflows and related tests. | Merged [PR #1](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/pull/1), [PR #2](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/pull/2), [PR #3](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/pull/3) |
+| Rajesh Manavaditya | Added supplementary MOEA/D, AMOSA-inspired annealing, MCDM, CP-SAT epsilon-constraint runs and five-method comparison/visualization. | Merged [PR #4](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/pull/4); [cf0110d](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/commit/cf0110d) |
+| Paarth Maharshi | Added exact gaps/room references, AHP/sensitivity analysis and supplementary study scripts/results; corrected measured-only website results, optional comparisons and documentation. | Merged [PR #5](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/pull/5); [7833e17](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/commit/7833e17), [51664e9](https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH/commit/51664e9) |
+
+The [contribution evidence](../docs/contributions.md) identifies representative changed files and distinguishes substantive feature commits from merges. GitHub confirms PRs 1–3 were submitted by `krisharmaa`, PR 4 by `Manavaditya-rajesh`, and PR 5 by `PaarthMaharshi`; all five are merged. Akshat's publication commits are recorded under the Git author label `akshat`; the group supplied his identity and leader role.
+
+| Academic field | Current evidence boundary |
+|---|---|
+| Professor / group number | Akhil Kulal (`akhilkulal4050`), Group 14; supplied by the group. |
+| Topic approval / approval date | Not supplied or verified. |
+| Three genuinely different proposals submitted | Only the supplied timetable proposal is evidenced in this repository. |
+| Actual weekly member participation | Dated commits and merged PRs are verified; a complete eight-week participation record is not established by them. Add only genuine work/review records. |
+
+The professor requires meaningful parallel work, personal weekly commits and understanding of the full project for the viva. The [prospective four-member/eight-week plan and evidence template](../docs/project_plan.md) is a planning aid, not a historical log. Final presentation/demo material is under [presentation/](../presentation/). All four members should review their contribution wording and be able to defend the variables, constraints, algorithms, experiments, unfavorable findings and proof boundaries themselves.
+
+## 19. GitHub/GitLab repository link
+
+Repository: <https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH>.
+
+The professor requires a private repository, access for all four members and Professor Akhil Kulal (`akhilkulal4050`), and the repository-link submission document after topic approval. Confirm those facts in the actual account settings and record the submitted revision; the supplied group identities and a repository URL do not establish approval, access permissions or a complete eight-week history.
+
+### Reproducing and inspecting the submitted work
+
+The [root README](../README.md) is the installation/CLI entry point. From a fresh checkout in Bash:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-lock.txt
+python -m pip install -e . --no-deps
+python -m pytest -q
+python main.py generate --size small --seed 42 --output data/demo.json --certificate data/certificates/demo.json
+python main.py solve data/demo.json --method memetic --seed 0 --budget 240 --population 24 --output results/demo --figures figures/demo
+python main.py evaluate data/demo.json results/demo/timetables/normalized_compromise/schedule.json
+```
+
+Recheck saved evidence and regenerate final plots/exports without changing solver measurements:
+
+```bash
+python experiments/verify_saved_results.py --study benchmark
+python experiments/verify_enhancement.py --study enhancement_validation
+python experiments/exact_fronts.py --study benchmark
+python experiments/exact_fronts.py --study enhancement_validation
+python experiments/certify_small_ideal.py --study enhancement_validation
+python experiments/plot_enhancement.py --study enhancement_validation
+python experiments/export_enhancement.py --study enhancement_validation
+python experiments/report_enhancement.py --study enhancement_validation
+```
+
+For fresh final-study measurements, preserve existing records under a new study name:
+
+```bash
+mkdir -p work
+python - <<'PYCONFIG'
+import json
+from pathlib import Path
+config = json.loads(Path('experiments/enhancement_validation.json').read_text())
+config['name'] = 'enhancement_reproduction'
+Path('work/enhancement_reproduction.json').write_text(json.dumps(config, indent=2))
+PYCONFIG
+python main.py compare --config work/enhancement_reproduction.json
+python experiments/verify_enhancement.py --study enhancement_reproduction
+python experiments/exact_fronts.py --study enhancement_reproduction
+```
+
+For a fresh single solver run, obtain an exact front without altering `run.json` or its timing:
+
+```bash
+python experiments/exact_fronts.py --run results/demo/run.json --instance results/demo/instance.json --output results/demo_exact/front.json
+```
+
+The fresh output contains the complete surviving `archive`, canonical `objectives`, `exact_keys`, and `survivor_indices` referencing the original raw archive. To validate and export one exact survivor as readable grids:
+
+```bash
+python - <<'PYEXACT'
+import json
+from pathlib import Path
+from timetable.model import problem_from_dict, schedule_from_dict
+from timetable.export import export_schedule
+problem = problem_from_dict(json.loads(Path('results/demo/instance.json').read_text()))
+front = json.loads(Path('results/demo_exact/front.json').read_text())
+if not front['archive']:
+    raise SystemExit('The run contains no feasible saved candidate.')
+schedule = schedule_from_dict(front['archive'][0])
+export_schedule(problem, schedule, Path('results/demo_exact/timetable'), 'Exact saved-archive survivor')
+PYEXACT
+python main.py evaluate results/demo/instance.json results/demo_exact/timetable/schedule.json
+```
+
+Study-level cleanup writes separate summaries and per-run survivor references under `results/exact_fronts/STUDY/`, preserving the original run/index identities. It does not overwrite legacy exports or measurements. The source and [numerical-precision notes](../docs/numerical_precision.md) specify the exact-key policy and limits. Original search plots remain legacy evidence; optional `--plots` generates separate canonical-front plots.
+
+Resume requires the measured source/configuration/runtime; wall-time trajectories naturally vary between machines. Historical benchmark measurements remain associated with their original version and are never spliced into the final timing comparison.
+
+This consolidated report is the final narrative. The [historical summary](../results/benchmark/summary.md), [final summary](../results/enhancement_validation/summary.md), [frozen study protocol](../docs/enhancement_study.md), and [detailed follow-up report](enhancement_report.md) provide supporting traceable evidence. Administrative approval, access, actual contribution records, and presentation delivery remain genuine submission responsibilities.

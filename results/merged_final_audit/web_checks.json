@@ -1,0 +1,385 @@
+{
+  "passed": 61,
+  "failed": 0,
+  "skipped": 0,
+  "api": "http://127.0.0.1:18003",
+  "web": "http://127.0.0.1:15176",
+  "scenario": "medium",
+  "mainRun": {
+    "method": "Feasible memetic NSGA-II (final method)",
+    "evaluations": 360,
+    "hypervolume": 1.0437165573314786,
+    "baselineHypervolume": 1.0115405816190728,
+    "frontSize": 16,
+    "runtime": 4.975660267999956,
+    "baselineRuntime": 29.746312106999994
+  },
+  "results": [
+    {
+      "section": "servers",
+      "check": "backend health",
+      "status": "PASS",
+      "detail": "{'ok': True, 'optimizer': 'Feasible memetic NSGA-II (final method)'}"
+    },
+    {
+      "section": "servers",
+      "check": "frontend serves the app",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "servers",
+      "check": "frontend proxies /api to the backend",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "accounts",
+      "check": "wrong password refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "accounts",
+      "check": "no token refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "accounts",
+      "check": "admin login",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "teacher constraints",
+      "check": "saved availability reported as applied",
+      "status": "PASS",
+      "detail": "f2: blocked 7 periods it used, max 2/day"
+    },
+    {
+      "section": "teacher constraints",
+      "check": "blocked periods are in the optimised instance",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "teacher constraints",
+      "check": "no Pareto timetable uses a blocked period",
+      "status": "PASS",
+      "detail": "4 timetables checked"
+    },
+    {
+      "section": "teacher constraints",
+      "check": "saved daily maximum respected",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "teacher constraints",
+      "check": "same seed gives a different result once constraints change",
+      "status": "PASS",
+      "detail": "compromise objectives {'f1': 0.0, 'f2': 0.1171474358974359, 'f3': 0.09020039418489872} -> {'f1': 0.0, 'f2': 0.1171474358974359, 'f3': 0.09020039418489872}"
+    },
+    {
+      "section": "optimizer run",
+      "check": "final method used",
+      "status": "PASS",
+      "detail": "Feasible memetic NSGA-II (final method)"
+    },
+    {
+      "section": "optimizer run",
+      "check": "result checked by the independent evaluator",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "optimizer run",
+      "check": "Pareto front returned",
+      "status": "PASS",
+      "detail": "16 timetables, HV 1.0437"
+    },
+    {
+      "section": "optimizer run",
+      "check": "baseline ran with equal evaluations",
+      "status": "PASS",
+      "detail": "greedy HV 1.0115 vs memetic 1.0437 at 360 evaluations"
+    },
+    {
+      "section": "optimizer run",
+      "check": "convergence history for the chart",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "optimizer run",
+      "check": "run kept server-side (/runs/latest)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "collisions",
+      "check": "every returned timetable passes an independent re-check",
+      "status": "PASS",
+      "detail": "30 timetables: no teacher/student/room clash, lunch, capacity, kind, availability, limits"
+    },
+    {
+      "section": "publish",
+      "check": "clashing timetable refused",
+      "status": "PASS",
+      "detail": "{'detail': 'Not published: the timetable breaks hard constraints (daily_overload x46, faculty_clash x131, faculty_unavai"
+    },
+    {
+      "section": "publish",
+      "check": "best-compromise timetable published",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "accounts",
+      "check": "one account per teacher and per class",
+      "status": "PASS",
+      "detail": "28 created"
+    },
+    {
+      "section": "accounts",
+      "check": "student login sees own class",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "accounts",
+      "check": "student cannot run the optimiser / cancel / manage users",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "accounts",
+      "check": "teacher cannot run the optimiser or manage users",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "accounts",
+      "check": "students and teachers see the published timetable",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "leave and cover",
+      "check": "teacher applies for leave",
+      "status": "PASS",
+      "detail": "F16 on 2026-11-23: 3 lectures"
+    },
+    {
+      "section": "leave and cover",
+      "check": "their lectures become 'needs cover'",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "leave and cover",
+      "check": "other teachers are notified",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "leave and cover",
+      "check": "free teacher requests the lecture",
+      "status": "PASS",
+      "detail": "F01 asks for G06-T3"
+    },
+    {
+      "section": "leave and cover",
+      "check": "lecture owner is notified of the request",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "leave and cover",
+      "check": "requester cannot approve own request",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "leave and cover",
+      "check": "accepted request -> covered by the substitute",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "leave and cover",
+      "check": "substitute is notified of the acceptance",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "leave and cover",
+      "check": "admin assigns a substitute directly",
+      "status": "PASS",
+      "detail": "F02"
+    },
+    {
+      "section": "leave and cover",
+      "check": "a teacher who is busy then cannot be assigned",
+      "status": "PASS",
+      "detail": "{'detail': 'Faculty F13 already teaches G01-L2 (P1) then.'}"
+    },
+    {
+      "section": "requests and notifications",
+      "check": "request listed for the owner (incoming) and sender (outgoing)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "requests and notifications",
+      "check": "declined request leaves the lecture unchanged",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "requests and notifications",
+      "check": "requester is notified of the decline",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "requests and notifications",
+      "check": "teacher cannot request a lecture while teaching another",
+      "status": "PASS",
+      "detail": "{'detail': 'Faculty F01 already teaches G02-L1 (P1) then.'}"
+    },
+    {
+      "section": "requests and notifications",
+      "check": "notifications can be marked read",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "quiz and extra classes",
+      "check": "refused when the students already have a class",
+      "status": "PASS",
+      "detail": "{'detail': 'The students already have G01-L2 (P1) then.'}"
+    },
+    {
+      "section": "quiz and extra classes",
+      "check": "refused when the teacher is teaching elsewhere",
+      "status": "PASS",
+      "detail": "{'detail': 'Faculty F06 already teaches G05-T3 (P8) then.'}"
+    },
+    {
+      "section": "quiz and extra classes",
+      "check": "refused when the room is taken",
+      "status": "PASS",
+      "detail": "{'detail': 'Room R02 is taken by G02-T3 (P6).'}"
+    },
+    {
+      "section": "quiz and extra classes",
+      "check": "accepted in a free period / free room",
+      "status": "PASS",
+      "detail": "G01-T1 P6 in R04"
+    },
+    {
+      "section": "quiz and extra classes",
+      "check": "quiz appears in the calendar",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "quiz and extra classes",
+      "check": "class is notified",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "quiz and extra classes",
+      "check": "teacher cannot add a quiz for a course they do not teach",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "quiz and extra classes",
+      "check": "second class refused in the room the quiz now uses",
+      "status": "PASS",
+      "detail": "{'detail': 'Room R04 is taken by G01-T1 (P6).'}"
+    },
+    {
+      "section": "online assessment",
+      "check": "lectures inside the assessment window are cancelled",
+      "status": "PASS",
+      "detail": "4 cancelled"
+    },
+    {
+      "section": "online assessment",
+      "check": "lectures outside the window are untouched",
+      "status": "PASS",
+      "detail": "1 kept"
+    },
+    {
+      "section": "online assessment",
+      "check": "other classes are untouched",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "online assessment",
+      "check": "class is notified",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "online assessment",
+      "check": "no quiz can be put inside the assessment",
+      "status": "PASS",
+      "detail": "{'detail': 'The students have an online assessment then.'}"
+    },
+    {
+      "section": "holidays",
+      "check": "every lecture that day is cancelled",
+      "status": "PASS",
+      "detail": "32 lectures"
+    },
+    {
+      "section": "holidays",
+      "check": "everyone is notified",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "holidays",
+      "check": "no quiz on a holiday",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "holidays",
+      "check": "teachers cannot declare holidays",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "syllabus completion",
+      "check": "only the course's teacher (or admin) can mark it",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "syllabus completion",
+      "check": "no lectures after the completion date",
+      "status": "PASS",
+      "detail": "13 before, 0 after"
+    },
+    {
+      "section": "syllabus completion",
+      "check": "no extra class after completion",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "section": "collisions",
+      "check": "no teacher/student/room double booking anywhere in the semester calendar",
+      "status": "PASS",
+      "detail": "1925 dated classes incl. covers and quizzes"
+    }
+  ]
+}

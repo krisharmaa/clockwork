@@ -1,0 +1,112 @@
+{
+  "audit_date": "2026-11-14",
+  "audited_merged_main": "7b43c07ae1da7d649e4f1477d6f087241b6eb5b6",
+  "scope": "Final cleanup and verification; no new product features. Python suite and CLI executed in a clean tracked-file snapshot with a fresh lock-only Python environment; browser/HTTP checks used disposable databases.",
+  "status": "PASS",
+  "technical_demo_ready": true,
+  "submission_ready_after_manual_items": true,
+  "python_baseline": {
+    "passed": 267,
+    "warnings": 1,
+    "seconds": 34.13
+  },
+  "python_final": {
+    "passed": 417,
+    "warnings": 1,
+    "seconds": 46.35,
+    "additional_cases": 150,
+    "skips": 0,
+    "xfails": 0
+  },
+  "warning": "Upstream Starlette TestClient deprecates httpx in favor of httpx2; no failed checks.",
+  "pip_check": "PASS",
+  "frontend_clean_install": "PASS",
+  "frontend_production_build": "PASS",
+  "cli": {
+    "checks": 55,
+    "status": "PASS",
+    "sizes": [
+      "small",
+      "medium",
+      "large"
+    ],
+    "standard_nsga2_search_failure_exit_2_expected": true
+  },
+  "http": {
+    "passed": 61,
+    "failed": 0,
+    "skipped": 0,
+    "dated_occurrences_collision_checked": 1925
+  },
+  "browser": {
+    "passed": 13,
+    "uncaught_exceptions": 0,
+    "failure_and_race_regressions": "PASS"
+  },
+  "experiment_orchestration": {
+    "fresh_smoke_runs": 12,
+    "resume_commands": 2,
+    "raw_run_hashes_preserved": true
+  },
+  "supplementary_smoke_workflows": [
+    "MOEA/D paired quick",
+    "CP-SAT exact-gap quick",
+    "three disruption cases quick",
+    "five-method synthetic demo",
+    "ITC-inspired five-method/MOEA-D/validation/TOPSIS demo"
+  ],
+  "historical_revalidation": {
+    "runs": 192,
+    "feasible_archived_schedules": 769,
+    "certificates": 7,
+    "empty_archives": 48,
+    "status": "PASS"
+  },
+  "held_out_revalidation": {
+    "runs": 168,
+    "feasible_archived_schedules": 3295,
+    "certificates": 7,
+    "excluded_late_evaluations": 9,
+    "common_initialization_groups": 42,
+    "status": "PASS",
+    "validation_code_matches_snapshot": true,
+    "current_source_matches_snapshot": false
+  },
+  "exact_reporting_fronts": {
+    "held_out_survivors": 3242,
+    "held_out_dominated_records_removed": 53,
+    "max_absolute_hypervolume_change": 3.3306690738754696e-16
+  },
+  "dataset_replay": {
+    "instances": 14,
+    "instances_and_certificates": 28,
+    "all_byte_identical": true
+  },
+  "checked_source_file_count": 124,
+  "checked_source_files_match_release_snapshot": true,
+  "report": {
+    "pdf_pages": 23,
+    "required_sections": 19
+  },
+  "presentation": {
+    "slides": 22,
+    "speaker_notes_slides": 22
+  },
+  "historical_numeric_records_changed": false,
+  "full_timed_benchmark_campaign_recomputed": false,
+  "powershell_wrapper_executed": false,
+  "powershell_python_payload_executed": "PASS",
+  "manual_items": [
+    "Complete authentic group names, roll numbers, approval and contribution evidence.",
+    "Repository visibility was public at audit; assignment requires private and access for all four members plus professor.",
+    "Confirm topic approval, repository-link document and submission procedures.",
+    "Rehearse on the presentation machine; native Windows PowerShell wrapper was inspected but not run."
+  ],
+  "scientific_limits": [
+    "Synthetic data only.",
+    "Pareto fronts are non-dominated among evaluated/saved candidates, except explicitly certified tiny references.",
+    "Primary historical measurements were revalidated, not rerun or replaced.",
+    "Historical supplementary studies lack full archives/source manifests and predate some algorithm corrections; treat as exploratory."
+  ],
+  "presentation_demo_shell_script": "PASS"
+}

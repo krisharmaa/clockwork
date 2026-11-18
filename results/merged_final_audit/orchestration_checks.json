@@ -1,0 +1,74 @@
+{
+  "status": "PASS",
+  "fresh_runs": 12,
+  "resume_commands": 2,
+  "raw_hashes_unchanged_after_resume": true,
+  "note": "Both resume commands exited 0, followed by an assertion comparing all 12 raw-run hashes against their pre-resume values. Smoke runs only, not benchmark evidence.",
+  "configs": {
+    "comparison_smoke.json": {
+      "name": "merged_audit_comparison",
+      "phase": "audit_smoke",
+      "methods": [
+        "greedy",
+        "original_enhanced",
+        "memetic",
+        "ablation_local"
+      ],
+      "protocols": [
+        "evaluations",
+        "wall_time"
+      ],
+      "population_size": 6,
+      "instance_seeds": [
+        9010
+      ],
+      "solver_seeds": [
+        0
+      ],
+      "evaluation_ceiling": 500,
+      "scenarios": [
+        {
+          "size": "small",
+          "budget": 24,
+          "wall_time_seconds": 0.4
+        }
+      ]
+    },
+    "legacy_smoke.json": {
+      "name": "merged_audit_legacy",
+      "methods": [
+        "greedy",
+        "nsga2",
+        "seeded",
+        "enhanced"
+      ],
+      "population_size": 6,
+      "instance_seeds": [
+        9010
+      ],
+      "solver_seeds": [
+        0
+      ],
+      "scenarios": [
+        {
+          "size": "small",
+          "budget": 24
+        }
+      ]
+    }
+  },
+  "final_raw_run_sha256": {
+    "merged_audit_comparison/runs/small_9010_evaluations_ablation_local_0.json": "1da4b6e2099914b15c3de0b2f1b6d599f052ab996f7120f1995713ddba9dc76b",
+    "merged_audit_comparison/runs/small_9010_evaluations_greedy_0.json": "1f7fa2c809f9ea077eabe7e5d5d9417a955df7c103c09e1aef8f8d0d3ce19313",
+    "merged_audit_comparison/runs/small_9010_evaluations_memetic_0.json": "69c7e80c97241db35ee05c1c54ce875b1a96e9137d98f5bf0516576677c45cfb",
+    "merged_audit_comparison/runs/small_9010_evaluations_original_enhanced_0.json": "c04ea8313969352dc32bf2c8a57d8422fb29bad358ac6ffc5d403511cd30f2e3",
+    "merged_audit_comparison/runs/small_9010_wall_time_ablation_local_0.json": "35c56a746985b9d1a24aa5c50563c858fd97e55d005e26f33bb77a517f41186f",
+    "merged_audit_comparison/runs/small_9010_wall_time_greedy_0.json": "3e85a7167ca076d486d3b4b0aac068ef6954aa69ea0ccff0d16922d790558861",
+    "merged_audit_comparison/runs/small_9010_wall_time_memetic_0.json": "ed50a35d689f160be220bba1eafba76fa66fba0b6dd4fa482d7bfea8e39bef2f",
+    "merged_audit_comparison/runs/small_9010_wall_time_original_enhanced_0.json": "f3d0e8ce092efa64c1f3d5f6e5dcb6701728c06b95c08fde71c8558dd462fb34",
+    "merged_audit_legacy/runs/small_9010_enhanced_0.json": "3cc6ec9457c55b5c50f96ca549e207f35126d254bccd92c5a7e0789f052b54b5",
+    "merged_audit_legacy/runs/small_9010_greedy_0.json": "1378243fb4f9e8b5c2bbfbea046a6c679c3c47b8bbb7d5b7cf819da4bdb884c6",
+    "merged_audit_legacy/runs/small_9010_nsga2_0.json": "b489b37544af6bd32dfdc19ee569b82b04396dc4bdece19e67b2d5426b8c7ff2",
+    "merged_audit_legacy/runs/small_9010_seeded_0.json": "20901b2ecdaa3ebb493a35293552b0d51da941bdc9ac62405becd3165b8c0c23"
+  }
+}

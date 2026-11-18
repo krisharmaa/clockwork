@@ -1,0 +1,9 @@
+merged_audit_legacy: small_9010 greedy seed=0 budget=24
+  feasible=True HV=0.934913 front=3 runtime=0.69s
+merged_audit_legacy: small_9010 nsga2 seed=0 budget=24
+  feasible=False HV=0.000000 front=0 runtime=0.01s
+merged_audit_legacy: small_9010 seeded seed=0 budget=24
+  feasible=True HV=0.864729 front=2 runtime=0.04s
+merged_audit_legacy: small_9010 enhanced seed=0 budget=24
+  feasible=True HV=0.864729 front=2 runtime=0.15s
+results/merged_audit_legacy
